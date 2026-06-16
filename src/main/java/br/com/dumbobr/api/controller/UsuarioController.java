@@ -2,10 +2,9 @@ package br.com.dumbobr.api.controller;
 
 import br.com.dumbobr.api.dto.UsuarioRequestDTO;
 import br.com.dumbobr.api.dto.UsuarioResponseDTO;
-import br.com.dumbobr.api.model.Endereco;
 import br.com.dumbobr.api.model.ObjetoRastreado;
-import br.com.dumbobr.api.repository.EnderecoRepository;
-import br.com.dumbobr.api.repository.ObjetoRastreadoRepository;
+import br.com.dumbobr.api.dto.EnderecoResponseDTO;
+import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
 import br.com.dumbobr.api.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -17,17 +16,9 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    private final EnderecoRepository enderecoRepository;
-    private final ObjetoRastreadoRepository objetoRastreadoRepository;
 
-    public UsuarioController(
-            UsuarioService usuarioService,
-            EnderecoRepository enderecoRepository,
-            ObjetoRastreadoRepository objetoRastreadoRepository
-    ) {
+    public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
-        this.enderecoRepository = enderecoRepository;
-        this.objetoRastreadoRepository = objetoRastreadoRepository;
     }
 
     @GetMapping
@@ -43,12 +34,12 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}/enderecos")
-    public List<Endereco> listarEnderecosDoUsuario(@PathVariable Long id) {
-        return enderecoRepository.findByUsuarioId(id);
+    public List<EnderecoResponseDTO> listarEnderecosDoUsuario(@PathVariable Long id) {
+        return usuarioService.listarEnderecosDoUsuario(id);
     }
 
     @GetMapping("/{id}/objetos")
-    public List<ObjetoRastreado> listarObjetosDoUsuario(@PathVariable Long id) {
-        return objetoRastreadoRepository.findByUsuarioId(id);
+    public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuario(@PathVariable Long id) {
+        return usuarioService.listarObjetosDoUsuario(id);
     }
 }
