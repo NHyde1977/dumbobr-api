@@ -21,19 +21,11 @@ public class ObjetoRastreado {
     private BigDecimal valorBem;
     private BigDecimal taxaAlfandegaria;
     private BigDecimal outrosCustos;
-    private String status;
+    private StatusObjeto status;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
-
-    public Usuario getUsuario() {
-    return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-    this.usuario = usuario;
-    }
 
     public ObjetoRastreado() {
     }
@@ -44,7 +36,7 @@ public class ObjetoRastreado {
             BigDecimal valorBem,
             BigDecimal taxaAlfandegaria,
             BigDecimal outrosCustos,
-            String status,
+            StatusObjeto status,
             Usuario usuario
     ) {
         this.codigoRastreio = codigoRastreio;
@@ -80,12 +72,16 @@ public class ObjetoRastreado {
         return outrosCustos;
     }
 
-    public String getStatus() {
+    public StatusObjeto getStatus() {
         return status;
     }
 
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
     public void setId(Long id) {
-    this.id = id;
+        this.id = id;
     }
 
     public void setCodigoRastreio(String codigoRastreio) {
@@ -108,9 +104,11 @@ public class ObjetoRastreado {
         this.outrosCustos = outrosCustos;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusObjeto status) {
         this.status = status;
     }
-}
 
-//dica da IA: Para dinheiro, usar BigDecimal, não double, porque evita problemas de arredondamento em valores monetários.
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+}

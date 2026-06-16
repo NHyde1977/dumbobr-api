@@ -2,29 +2,38 @@ package br.com.dumbobr.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class EnderecoRequestDTO {
     
+    @Schema(description = "CEP", example = "22070-011")
     @NotBlank(message = "O CEP é obrigatório")
     private String cep;
 
+    @Schema(description = "Logradouro", example = "Rua ABC")
     @NotBlank(message = "O logradouro é obrigatório")
     private String logradouro;
 
+    @Schema(description = "Número", example = "245")
     @NotBlank(message = "O número é obrigatório")
     private String numero;
 
+    @Schema(description = "Complemento", example = "Apto 302")
     private String complemento;
 
+    @Schema(description = "Bairro", example = "Perdizes")
     @NotBlank(message = "O bairro é obrigatório")
     private String bairro;
 
+    @Schema(description = "Cidade", example = "Sao Paulo")
     @NotBlank(message = "A cidade é obrigatória")
     private String cidade;
 
+    @Schema(description = "Estado", example = "SP")
     @NotBlank(message = "O estado é obrigatório")
     private String estado;
 
+    @Schema(description = "ID do usuário proprietário do endereço", example = "1")
     @NotNull(message = "O usuário é obrigatório")
     private Long usuarioId;
 

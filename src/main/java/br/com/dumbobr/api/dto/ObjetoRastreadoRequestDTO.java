@@ -2,32 +2,62 @@ package br.com.dumbobr.api.dto;
 
 import java.math.BigDecimal;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
+import br.com.dumbobr.api.model.StatusObjeto;
 
 public class ObjetoRastreadoRequestDTO {
-    
+
+    @Schema(
+            description = "Código de rastreio do objeto",
+            example = "LB123456789BR"
+    )
     @NotBlank(message = "O código de rastreio é obrigatório")
     private String codigoRastreio;
 
+    @Schema(
+            description = "Valor do frete",
+            example = "35.90"
+    )
     @NotNull(message = "O valor do frete é obrigatório")
     @PositiveOrZero(message = "O valor do frete não pode ser negativo")
     private BigDecimal valorFrete;
 
+    @Schema(
+            description = "Valor do bem adquirido",
+            example = "250.00"
+    )
     @NotNull(message = "O valor do bem é obrigatório")
     @PositiveOrZero(message = "O valor do bem não pode ser negativo")
     private BigDecimal valorBem;
 
+    @Schema(
+            description = "Taxa alfandegária",
+            example = "60.00"
+    )
     @PositiveOrZero(message = "A taxa alfandegária não pode ser negativa")
     private BigDecimal taxaAlfandegaria;
 
+    @Schema(
+            description = "Outros custos",
+            example = "12.50"
+    )
     @PositiveOrZero(message = "Outros custos não podem ser negativos")
     private BigDecimal outrosCustos;
 
-    @NotBlank(message = "O status é obrigatório")
-    private String status;
+    @Schema(
+            description = "Status atual do objeto",
+            example = "EM_TRANSITO"
+    )
+    @NotNull(message = "O status é obrigatório")
+    private StatusObjeto status;
 
+    @Schema(
+            description = "ID do usuário dono do objeto",
+            example = "1"
+    )
     @NotNull(message = "O usuário é obrigatório")
     private Long usuarioId;
 
@@ -74,13 +104,13 @@ public class ObjetoRastreadoRequestDTO {
         this.outrosCustos = outrosCustos;
     }
 
-    public String getStatus() {
-        return status;
-    }
+    public StatusObjeto getStatus() {
+    return status;
+}
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public void setStatus(StatusObjeto status) {
+    this.status = status;
+}
 
     public Long getUsuarioId() {
         return usuarioId;

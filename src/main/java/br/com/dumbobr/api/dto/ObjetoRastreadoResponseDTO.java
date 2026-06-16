@@ -2,6 +2,8 @@ package br.com.dumbobr.api.dto;
 
 import java.math.BigDecimal;
 
+import br.com.dumbobr.api.model.StatusObjeto;
+
 public class ObjetoRastreadoResponseDTO {
 
     private Long id;
@@ -10,7 +12,7 @@ public class ObjetoRastreadoResponseDTO {
     private BigDecimal valorBem;
     private BigDecimal taxaAlfandegaria;
     private BigDecimal outrosCustos;
-    private String status;
+    private StatusObjeto status;
     private Long usuarioId;
 
     public ObjetoRastreadoResponseDTO(
@@ -20,7 +22,7 @@ public class ObjetoRastreadoResponseDTO {
             BigDecimal valorBem,
             BigDecimal taxaAlfandegaria,
             BigDecimal outrosCustos,
-            String status,
+            StatusObjeto status,
             Long usuarioId
     ) {
         this.id = id;
@@ -57,7 +59,7 @@ public class ObjetoRastreadoResponseDTO {
         return outrosCustos;
     }
 
-    public String getStatus() {
+    public StatusObjeto getStatus() {
         return status;
     }
 
