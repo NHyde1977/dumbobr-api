@@ -66,4 +66,39 @@ public class EnderecoService {
                 endereco.getUsuario().getId()
         );
     }
+
+    public EnderecoResponseDTO buscarEnderecoPorId(Long id) {
+    Endereco endereco = enderecoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+    return converterParaDTO(endereco);
+    }
+
+    public EnderecoResponseDTO atualizarEndereco(Long id, EnderecoRequestDTO dto) {
+    Endereco endereco = enderecoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+    Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    endereco.setCep(dto.getCep());
+    endereco.setLogradouro(dto.getLogradouro());
+    endereco.setNumero(dto.getNumero());
+    endereco.setComplemento(dto.getComplemento());
+    endereco.setBairro(dto.getBairro());
+    endereco.setCidade(dto.getCidade());
+    endereco.setEstado(dto.getEstado());
+    endereco.setUsuario(usuario);
+
+    Endereco enderecoAtualizado = enderecoRepository.save(endereco);
+
+    return converterParaDTO(enderecoAtualizado);
+}
+
+        public void excluirEndereco(Long id) {
+    Endereco endereco = enderecoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+
+    enderecoRepository.delete(endereco);
+}
 }

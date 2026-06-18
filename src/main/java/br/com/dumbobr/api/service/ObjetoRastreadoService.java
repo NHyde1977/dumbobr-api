@@ -7,6 +7,7 @@ import br.com.dumbobr.api.model.Usuario;
 import br.com.dumbobr.api.repository.ObjetoRastreadoRepository;
 import br.com.dumbobr.api.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import br.com.dumbobr.api.model.StatusObjeto;
 
 import java.util.List;
 
@@ -29,6 +30,13 @@ public class ObjetoRastreadoService {
                 .stream()
                 .map(this::converterParaDTO)
                 .toList();
+    }
+
+        public List<ObjetoRastreadoResponseDTO> listarObjetosPorStatus(StatusObjeto status) {
+    return objetoRastreadoRepository.findByStatus(status)
+            .stream()
+            .map(this::converterParaDTO)
+            .toList();
     }
 
     public ObjetoRastreadoResponseDTO cadastrarObjeto(ObjetoRastreadoRequestDTO dto) {
@@ -63,4 +71,39 @@ public class ObjetoRastreadoService {
                 objeto.getUsuario().getId()
         );
     }
+
+    public ObjetoRastreadoResponseDTO buscarObjetoPorId(Long id) {
+    ObjetoRastreado objeto = objetoRastreadoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Objeto rastreado não encontrado"));
+
+    return converterParaDTO(objeto);
+    }
+
+    public ObjetoRastreadoResponseDTO atualizarObjeto(Long id, ObjetoRastreadoRequestDTO dto) {
+    ObjetoRastreado objeto = objetoRastreadoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Objeto rastreado não encontrado"));
+
+    Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    objeto.setCodigoRastreio(dto.getCodigoRastreio());
+    objeto.setValorFrete(dto.getValorFrete());
+    objeto.setValorBem(dto.getValorBem());
+    objeto.setTaxaAlfandegaria(dto.getTaxaAlfandegaria());
+    objeto.setOutrosCustos(dto.getOutrosCustos());
+    objeto.setStatus(dto.getStatus());
+    objeto.setUsuario(usuario);
+
+    ObjetoRastreado objetoAtualizado = objetoRastreadoRepository.save(objeto);
+
+    return converterParaDTO(objetoAtualizado);
+}
+
+public void excluirObjeto(Long id) {
+    ObjetoRastreado objeto = objetoRastreadoRepository.findById(id)
+            .orElseThrow(() ->
+                    new RuntimeException("Objeto rastreado não encontrado"));
+
+    objetoRastreadoRepository.delete(objeto);
+}
 }

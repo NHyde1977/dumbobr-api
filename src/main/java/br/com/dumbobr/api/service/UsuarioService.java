@@ -4,6 +4,7 @@ import br.com.dumbobr.api.dto.UsuarioRequestDTO;
 import br.com.dumbobr.api.dto.UsuarioResponseDTO;
 import br.com.dumbobr.api.model.Endereco;
 import br.com.dumbobr.api.model.ObjetoRastreado;
+import br.com.dumbobr.api.model.StatusObjeto;
 import br.com.dumbobr.api.model.Usuario;
 import br.com.dumbobr.api.repository.EnderecoRepository;
 import br.com.dumbobr.api.repository.ObjetoRastreadoRepository;
@@ -11,6 +12,8 @@ import br.com.dumbobr.api.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import br.com.dumbobr.api.dto.EnderecoResponseDTO;
 import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
+import br.com.dumbobr.api.dto.EstatisticasUsuarioResponseDTO;
+import br.com.dumbobr.api.model.StatusObjeto;
 
 import java.util.List;
 
@@ -101,4 +104,60 @@ public class UsuarioService {
                 objeto.getUsuario().getId()
              );
        }
+    
+    public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuarioPorStatus(
+        Long usuarioId,
+        StatusObjeto status
+    ) {
+    return objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, status)
+            .stream()
+            .map(this::converterObjetoParaDTO)
+            .toList();
+    }
+
+    public EstatisticasUsuarioResponseDTO obterEstatisticasDoUsuario(Long usuarioId) {
+    return new EstatisticasUsuarioResponseDTO(
+            usuarioId,
+            objetoRastreadoRepository.findByUsuarioId(usuarioId).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SEM_REGISTRO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.POSTADO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.EM_TRANSITO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.AGUARDANDO_PAGAMENTO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.LIBERADO_PELA_ALFANDEGA).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SAIU_PARA_ENTREGA).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.ENTREGUE).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.DEVOLVIDO).size()
+    );
+    }
+
+    public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    return converterParaDTO(usuario);
+    }
+
+    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioRequestDTO dto) {
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    usuario.setNome(dto.getNome());
+    usuario.setCpf(dto.getCpf());
+    usuario.setEmail(dto.getEmail());
+    usuario.setTelefone(dto.getTelefone());
+
+    Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+    return converterParaDTO(usuarioAtualizado);
+}
+
+public void excluirUsuario(Long id) {
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    enderecoRepository.deleteAll(enderecoRepository.findByUsuarioId(id));
+    objetoRastreadoRepository.deleteAll(objetoRastreadoRepository.findByUsuarioId(id));
+
+    usuarioRepository.delete(usuario);
+}
 }
