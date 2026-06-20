@@ -15,13 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import br.com.dumbobr.api.model.StatusObjeto;
 import br.com.dumbobr.api.dto.EstatisticasUsuarioResponseDTO;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 
 @Tag(
     name = "Usuários",
     description = "Operações relacionadas aos usuários do sistema DumboBR"
 )
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {

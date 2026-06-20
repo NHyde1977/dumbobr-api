@@ -16,15 +16,17 @@ public class Usuario {
     private String cpf;
     private String email;
     private String telefone;
+    private String senha;
 
     public Usuario() {
     }
 
-    public Usuario(String nome, String cpf, String email, String telefone) {
-        this.nome = nome;
-        this.cpf = cpf;
-        this.email = email;
-        this.telefone = telefone;
+    public Usuario(String nome, String cpf, String email, String telefone, String senha) {
+    this.nome = nome;
+    this.cpf = cpf;
+    this.email = email;
+    this.telefone = telefone;
+    this.senha = senha;
     }
 
     public Long getId() {
@@ -65,5 +67,13 @@ public class Usuario {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public String getSenha() {
+    return senha;
+}
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }

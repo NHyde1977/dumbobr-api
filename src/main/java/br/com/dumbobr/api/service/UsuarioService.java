@@ -14,6 +14,7 @@ import br.com.dumbobr.api.dto.EnderecoResponseDTO;
 import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
 import br.com.dumbobr.api.dto.EstatisticasUsuarioResponseDTO;
 import br.com.dumbobr.api.model.StatusObjeto;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -23,15 +24,18 @@ public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final EnderecoRepository enderecoRepository;
     private final ObjetoRastreadoRepository objetoRastreadoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(
             UsuarioRepository usuarioRepository,
             EnderecoRepository enderecoRepository,
-            ObjetoRastreadoRepository objetoRastreadoRepository
+            ObjetoRastreadoRepository objetoRastreadoRepository,
+            PasswordEncoder passwordEncoder
     ) {
         this.usuarioRepository = usuarioRepository;
         this.enderecoRepository = enderecoRepository;
         this.objetoRastreadoRepository = objetoRastreadoRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UsuarioResponseDTO> listarUsuarios() {
@@ -43,10 +47,11 @@ public class UsuarioService {
 
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto) {
         Usuario usuario = new Usuario(
-                dto.getNome(),
-                dto.getCpf(),
-                dto.getEmail(),
-                dto.getTelefone()
+        dto.getNome(),
+        dto.getCpf(),
+        dto.getEmail(),
+        dto.getTelefone(),
+        passwordEncoder.encode(dto.getSenha())
         );
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);

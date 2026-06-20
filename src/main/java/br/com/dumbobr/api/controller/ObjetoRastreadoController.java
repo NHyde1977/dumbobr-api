@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import br.com.dumbobr.api.model.StatusObjeto;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ import java.util.List;
     name = "Objetos Rastreados",
     description = "Operações relacionadas aos objetos rastreados do sistema DumboBR"
 )
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/objetos")
 public class ObjetoRastreadoController {

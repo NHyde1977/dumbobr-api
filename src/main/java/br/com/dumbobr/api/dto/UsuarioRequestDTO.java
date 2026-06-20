@@ -35,6 +35,13 @@ public class UsuarioRequestDTO {
     @NotBlank(message = "O telefone é obrigatório")
     private String telefone;
 
+   @Schema(
+        description = "Senha do usuário",
+        example = "123456"
+)
+    @NotBlank(message = "A senha é obrigatória")
+    private String senha;
+        
     public UsuarioRequestDTO() {
     }
 
@@ -71,5 +78,13 @@ public class UsuarioRequestDTO {
 
     public void setTelefone(String telefone) {
         this.telefone = telefone;
+    }
+
+    public String getSenha() {
+    return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }
