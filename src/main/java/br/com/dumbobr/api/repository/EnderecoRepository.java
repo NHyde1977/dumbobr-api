@@ -1,16 +1,11 @@
 package br.com.dumbobr.api.repository;
 
 import br.com.dumbobr.api.model.Endereco;
-import br.com.dumbobr.api.model.ObjetoRastreado;
-
 import org.springframework.data.jpa.repository.JpaRepository;
-import br.com.dumbobr.api.model.StatusObjeto;
-import java.util.List;
 
+import java.util.List;
 
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
 
     List<Endereco> findByUsuarioId(Long usuarioId);
-
-    List<ObjetoRastreado> findByStatus(StatusObjeto status);
 }
