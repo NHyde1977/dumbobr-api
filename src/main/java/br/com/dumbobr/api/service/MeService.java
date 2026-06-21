@@ -7,9 +7,14 @@ import org.springframework.stereotype.Service;
 import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
 import br.com.dumbobr.api.model.ObjetoRastreado;
 import br.com.dumbobr.api.repository.ObjetoRastreadoRepository;
+import br.com.dumbobr.api.dto.EnderecoRequestDTO;
 import br.com.dumbobr.api.dto.EnderecoResponseDTO;
+import br.com.dumbobr.api.dto.ObjetoRastreadoRequestDTO;
 import br.com.dumbobr.api.model.Endereco;
 import br.com.dumbobr.api.repository.EnderecoRepository;
+import br.com.dumbobr.api.dto.EnderecoRequestDTO;
+import br.com.dumbobr.api.dto.EnderecoResponseDTO;
+import br.com.dumbobr.api.model.Endereco;
 
 import java.util.List;
 
@@ -88,5 +93,50 @@ private EnderecoResponseDTO converterEnderecoParaDTO(Endereco endereco) {
             endereco.getEstado(),
             endereco.getUsuario().getId()
     );
+}
+
+public ObjetoRastreadoResponseDTO cadastrarMeuObjeto(
+        String email,
+        ObjetoRastreadoRequestDTO dto
+) {
+    Usuario usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    ObjetoRastreado objeto = new ObjetoRastreado(
+            dto.getCodigoRastreio(),
+            dto.getValorFrete(),
+            dto.getValorBem(),
+            dto.getTaxaAlfandegaria(),
+            dto.getOutrosCustos(),
+            dto.getStatus(),
+            usuario
+    );
+
+    ObjetoRastreado objetoSalvo = objetoRastreadoRepository.save(objeto);
+
+    return converterObjetoParaDTO(objetoSalvo);
+}
+
+public EnderecoResponseDTO cadastrarMeuEndereco(
+        String email,
+        EnderecoRequestDTO dto
+) {
+    Usuario usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    Endereco endereco = new Endereco(
+            dto.getCep(),
+            dto.getLogradouro(),
+            dto.getNumero(),
+            dto.getComplemento(),
+            dto.getBairro(),
+            dto.getCidade(),
+            dto.getEstado(),
+            usuario
+    );
+
+    Endereco enderecoSalvo = enderecoRepository.save(endereco);
+
+    return converterEnderecoParaDTO(enderecoSalvo);
 }
 }

@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
 import br.com.dumbobr.api.dto.EnderecoResponseDTO;
+import br.com.dumbobr.api.dto.ObjetoRastreadoRequestDTO;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import br.com.dumbobr.api.dto.EnderecoRequestDTO;
+import br.com.dumbobr.api.dto.EnderecoResponseDTO;
 
 import java.util.List;
 
@@ -52,5 +58,29 @@ public class MeController {
     @GetMapping("/me/enderecos")
     public List<EnderecoResponseDTO> obterMeusEnderecos(Authentication authentication) {
         return meService.obterMeusEnderecos(authentication.getName());
+    }
+
+    @Operation(
+        summary = "Cadastrar objeto do usuário autenticado",
+        description = "Cadastra um objeto rastreado vinculado automaticamente ao usuário logado."
+    )
+    @PostMapping("/me/objetos")
+    public ObjetoRastreadoResponseDTO cadastrarMeuObjeto(
+            Authentication authentication,
+            @RequestBody @Valid ObjetoRastreadoRequestDTO dto
+    ) {
+        return meService.cadastrarMeuObjeto(authentication.getName(), dto);
+    }
+
+    @Operation(
+        summary = "Cadastrar endereço do usuário autenticado",
+        description = "Cadastra um endereço vinculado automaticamente ao usuário logado."
+    )
+    @PostMapping("/me/enderecos")
+    public EnderecoResponseDTO cadastrarMeuEndereco(
+            Authentication authentication,
+            @RequestBody @Valid EnderecoRequestDTO dto
+    ) {
+        return meService.cadastrarMeuEndereco(authentication.getName(), dto);
     }
 }
