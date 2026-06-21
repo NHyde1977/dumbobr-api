@@ -1,5 +1,8 @@
 package br.com.dumbobr.api.service;
 
+import br.com.dumbobr.api.dto.EnderecoResponseDTO;
+import br.com.dumbobr.api.dto.EstatisticasUsuarioResponseDTO;
+import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
 import br.com.dumbobr.api.dto.UsuarioRequestDTO;
 import br.com.dumbobr.api.dto.UsuarioResponseDTO;
 import br.com.dumbobr.api.model.Endereco;
@@ -9,12 +12,8 @@ import br.com.dumbobr.api.model.Usuario;
 import br.com.dumbobr.api.repository.EnderecoRepository;
 import br.com.dumbobr.api.repository.ObjetoRastreadoRepository;
 import br.com.dumbobr.api.repository.UsuarioRepository;
-import org.springframework.stereotype.Service;
-import br.com.dumbobr.api.dto.EnderecoResponseDTO;
-import br.com.dumbobr.api.dto.ObjetoRastreadoResponseDTO;
-import br.com.dumbobr.api.dto.EstatisticasUsuarioResponseDTO;
-import br.com.dumbobr.api.model.StatusObjeto;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -47,11 +46,11 @@ public class UsuarioService {
 
     public UsuarioResponseDTO cadastrarUsuario(UsuarioRequestDTO dto) {
         Usuario usuario = new Usuario(
-        dto.getNome(),
-        dto.getCpf(),
-        dto.getEmail(),
-        dto.getTelefone(),
-        passwordEncoder.encode(dto.getSenha())
+                dto.getNome(),
+                dto.getCpf(),
+                dto.getEmail(),
+                dto.getTelefone(),
+                passwordEncoder.encode(dto.getSenha())
         );
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
@@ -59,18 +58,112 @@ public class UsuarioService {
         return converterParaDTO(usuarioSalvo);
     }
 
-    public List<EnderecoResponseDTO> listarEnderecosDoUsuario(Long usuarioId) {
+    public UsuarioResponseDTO buscarUsuarioPorId(Long id, String emailLogado) {
+        validarProprietario(id, emailLogado);
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        return converterParaDTO(usuario);
+    }
+
+    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioRequestDTO dto, String emailLogado) {
+        validarProprietario(id, emailLogado);
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        usuario.setNome(dto.getNome());
+        usuario.setCpf(dto.getCpf());
+        usuario.setEmail(dto.getEmail());
+        usuario.setTelefone(dto.getTelefone());
+        usuario.setSenha(passwordEncoder.encode(dto.getSenha()));
+
+        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
+
+        return converterParaDTO(usuarioAtualizado);
+    }
+
+    public void excluirUsuario(Long id, String emailLogado) {
+        validarProprietario(id, emailLogado);
+
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        enderecoRepository.deleteAll(enderecoRepository.findByUsuarioId(id));
+        objetoRastreadoRepository.deleteAll(objetoRastreadoRepository.findByUsuarioId(id));
+
+        usuarioRepository.delete(usuario);
+    }
+
+    public List<EnderecoResponseDTO> listarEnderecosDoUsuario(
+        Long usuarioId,
+        String emailLogado
+) {
+    validarProprietario(usuarioId, emailLogado);
+
     return enderecoRepository.findByUsuarioId(usuarioId)
             .stream()
             .map(this::converterEnderecoParaDTO)
             .toList();
+}
+
+    public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuario(
+        Long usuarioId,
+        String emailLogado
+) {
+    validarProprietario(usuarioId, emailLogado);
+
+    return objetoRastreadoRepository.findByUsuarioId(usuarioId)
+            .stream()
+            .map(this::converterObjetoParaDTO)
+            .toList();
+}
+   public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuarioPorStatus(
+        Long usuarioId,
+        StatusObjeto status,
+        String emailLogado
+) {
+    validarProprietario(usuarioId, emailLogado);
+
+    return objetoRastreadoRepository
+            .findByUsuarioIdAndStatus(usuarioId, status)
+            .stream()
+            .map(this::converterObjetoParaDTO)
+            .toList();
+}
+
+public EstatisticasUsuarioResponseDTO obterEstatisticasDoUsuario(
+        Long usuarioId,
+        String emailLogado
+) {
+    validarProprietario(usuarioId, emailLogado);
+
+    return new EstatisticasUsuarioResponseDTO(
+            usuarioId,
+            objetoRastreadoRepository.findByUsuarioId(usuarioId).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SEM_REGISTRO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.POSTADO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.EM_TRANSITO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.AGUARDANDO_PAGAMENTO).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.LIBERADO_PELA_ALFANDEGA).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SAIU_PARA_ENTREGA).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.ENTREGUE).size(),
+            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.DEVOLVIDO).size()
+    );
+}
+
+    private Usuario buscarUsuarioLogado(String emailLogado) {
+        return usuarioRepository.findByEmail(emailLogado)
+                .orElseThrow(() -> new RuntimeException("Usuário autenticado não encontrado"));
     }
 
-    public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuario(Long usuarioId) {
-        return objetoRastreadoRepository.findByUsuarioId(usuarioId)
-                .stream()
-                .map(this::converterObjetoParaDTO)
-                .toList();
+    private void validarProprietario(Long usuarioIdDaUrl, String emailLogado) {
+        Usuario usuarioLogado = buscarUsuarioLogado(emailLogado);
+
+        if (!usuarioLogado.getId().equals(usuarioIdDaUrl)) {
+            throw new RuntimeException("Acesso negado");
+        }
     }
 
     private UsuarioResponseDTO converterParaDTO(Usuario usuario) {
@@ -84,16 +177,16 @@ public class UsuarioService {
     }
 
     private EnderecoResponseDTO converterEnderecoParaDTO(Endereco endereco) {
-    return new EnderecoResponseDTO(
-            endereco.getId(),
-            endereco.getCep(),
-            endereco.getLogradouro(),
-            endereco.getNumero(),
-            endereco.getComplemento(),
-            endereco.getBairro(),
-            endereco.getCidade(),
-            endereco.getEstado(),
-            endereco.getUsuario().getId()
+        return new EnderecoResponseDTO(
+                endereco.getId(),
+                endereco.getCep(),
+                endereco.getLogradouro(),
+                endereco.getNumero(),
+                endereco.getComplemento(),
+                endereco.getBairro(),
+                endereco.getCidade(),
+                endereco.getEstado(),
+                endereco.getUsuario().getId()
         );
     }
 
@@ -107,62 +200,6 @@ public class UsuarioService {
                 objeto.getOutrosCustos(),
                 objeto.getStatus(),
                 objeto.getUsuario().getId()
-             );
-       }
-    
-    public List<ObjetoRastreadoResponseDTO> listarObjetosDoUsuarioPorStatus(
-        Long usuarioId,
-        StatusObjeto status
-    ) {
-    return objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, status)
-            .stream()
-            .map(this::converterObjetoParaDTO)
-            .toList();
+        );
     }
-
-    public EstatisticasUsuarioResponseDTO obterEstatisticasDoUsuario(Long usuarioId) {
-    return new EstatisticasUsuarioResponseDTO(
-            usuarioId,
-            objetoRastreadoRepository.findByUsuarioId(usuarioId).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SEM_REGISTRO).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.POSTADO).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.EM_TRANSITO).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.AGUARDANDO_PAGAMENTO).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.LIBERADO_PELA_ALFANDEGA).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.SAIU_PARA_ENTREGA).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.ENTREGUE).size(),
-            objetoRastreadoRepository.findByUsuarioIdAndStatus(usuarioId, StatusObjeto.DEVOLVIDO).size()
-    );
-    }
-
-    public UsuarioResponseDTO buscarUsuarioPorId(Long id) {
-    Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-    return converterParaDTO(usuario);
-    }
-
-    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioRequestDTO dto) {
-    Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-    usuario.setNome(dto.getNome());
-    usuario.setCpf(dto.getCpf());
-    usuario.setEmail(dto.getEmail());
-    usuario.setTelefone(dto.getTelefone());
-
-    Usuario usuarioAtualizado = usuarioRepository.save(usuario);
-
-    return converterParaDTO(usuarioAtualizado);
-}
-
-public void excluirUsuario(Long id) {
-    Usuario usuario = usuarioRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
-    enderecoRepository.deleteAll(enderecoRepository.findByUsuarioId(id));
-    objetoRastreadoRepository.deleteAll(objetoRastreadoRepository.findByUsuarioId(id));
-
-    usuarioRepository.delete(usuario);
-}
 }
