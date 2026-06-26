@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+
 import java.util.List;
 
 @Configuration
@@ -39,6 +40,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session ->
@@ -49,6 +51,7 @@ public class SecurityConfig {
         .requestMatchers(
                 "/auth/**",
                 "/saude",
+                "/h2-console/**",
                 "/swagger-ui/**",
                 "/v3/api-docs/**"
         ).permitAll()
